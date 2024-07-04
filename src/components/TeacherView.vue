@@ -68,6 +68,7 @@ export default {
     const name = ref(route.params.name);
     const username = ref(route.params.username);
 
+   /*  const selectcourse = courses; */
     const courses = ref([]);
     const students = ref([]);
     const selectedStudent = ref({
@@ -76,7 +77,8 @@ export default {
       regularScore: '',
       examScore: '',
       extraScore: '',
-      totalScore: ''
+      totalScore: '',
+      courseId: '' // 确保courseId在selectedStudent中存在
     });
 
     onMounted(() => {
@@ -100,13 +102,15 @@ export default {
     };
 
     const fetchStudents = async (course) => {
+      console.log(course,"dddd");
       try {
         const response = await axios.get('http://192.168.179.219:8088/teacher/getStudentList', {
           params: {
             teacherId: teacherId.value,
             courseId: course.courseId
-          }
+          },
         });
+        selectedStudent.value=course;
         students.value = response.data.data;
         courses.value.forEach(c => {
           if (c.courseId === course.courseId) {
@@ -121,22 +125,43 @@ export default {
     };
 
     const showStudentDetails = (student) => {
-      selectedStudent.value = { ...student, courseName: selectedStudent.value.courseName };
-      console.log('Selected Student:', student);
+       selectedStudent.value = { ...student, ...selectedStudent.value };
+/*       selectedStudent.value = { ...student, courseId }; */
+      console.log('Selected Student:', selectedStudent.value);
+      fetchCourseGrade()
+    };
+
+    const fetchCourseGrade = async () => {
+      try {
+        const response = await axios.get('http://192.168.179.219:8088/grade/getCourseGrade', {
+          params: {
+            studentId: selectedStudent.value.studentId,
+            courseId: selectedStudent.value.courseId
+          }
+        });
+        const grade = response.data.data;
+        selectedStudent.value.examScore = grade.examScore;
+        selectedStudent.value.regularScore = grade.regularScore;
+        selectedStudent.value.extraScore = grade.extraScore;
+        selectedStudent.value.totalScore = grade.totalScore;
+      } catch (error) {
+        console.error('Error fetching course grade:', error);
+      }
     };
 
     const submitData = async () => {
       try {
         const response = await axios.post('http://192.168.179.219:8088/grade/updateCourseGrade', {
           studentId: selectedStudent.value.studentId,
-          courseId: selectedStudent.value.courseId,
+          courseId: selectedStudent.value.courseId, // 确保courseId存在
           regularScore: selectedStudent.value.regularScore,
           examScore: selectedStudent.value.examScore,
           extraScore: selectedStudent.value.extraScore,
           totalScore: selectedStudent.value.totalScore
         });
         console.log('提交成功:', response.data);
-        alert('成绩修改成功');
+        if(response.data.code !=1)
+        alert('成绩修改失败');
       } catch (error) {
         console.error('Error submitting data:', error);
       }
@@ -152,7 +177,8 @@ export default {
       fetchData,
       fetchStudents,
       showStudentDetails,
-      submitData
+      submitData,
+      fetchCourseGrade
     };
   }
 };
