@@ -17,7 +17,7 @@
         <ul>
           <li v-for="course in courses" :key="course.courseId">
             <button @click="fetchStudents(course)">
-              课程ID: {{ course.courseId }}, 课程名称: {{ course.courseName }}
+               {{ course.courseName }}
             </button>
             <ul v-if="course.isVisible">
               <li v-for="student in students" :key="student.studentId">
@@ -88,15 +88,12 @@ export default {
 
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8082/teacher/getTeacherCourseList', {
+        const response = await axios.get('http://192.168.179.219:8088/teacher/getTeacherCourseList', {
           params: {
             teacherId: teacherId.value
           }
         });
-        courses.value = response.data.courses.map(course => ({
-          ...course,
-          isVisible: false // 添加 isVisible 属性
-        }));
+        courses.value = response.data.data
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -104,13 +101,13 @@ export default {
 
     const fetchStudents = async (course) => {
       try {
-        const response = await axios.get('http://127.0.0.1:8082/teacher/getStudentList', {
+        const response = await axios.get('http://192.168.179.219:8088/teacher/getStudentList', {
           params: {
             teacherId: teacherId.value,
             courseId: course.courseId
           }
         });
-        students.value = response.data.students;
+        students.value = response.data.data;
         courses.value.forEach(c => {
           if (c.courseId === course.courseId) {
             c.isVisible = !c.isVisible; // 切换 isVisible 属性
@@ -130,7 +127,7 @@ export default {
 
     const submitData = async () => {
       try {
-        const response = await axios.post('http://127.0.0.1:8082/grade/updateCourseGrade', {
+        const response = await axios.post('http://192.168.179.219:8088/grade/updateCourseGrade', {
           studentId: selectedStudent.value.studentId,
           courseId: selectedStudent.value.courseId,
           regularScore: selectedStudent.value.regularScore,

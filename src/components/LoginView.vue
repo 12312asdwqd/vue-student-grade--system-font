@@ -38,7 +38,7 @@ export default {
     async login() {
       // 在这里处理表单提交逻辑
       try {
-        const response = await axios.post('http://127.0.0.1:8082/auth/login', {
+        const response = await axios.post('http://192.168.179.219:8088/auth/login', {
           username: this.username,
           password: this.password,
           identity: this.identity

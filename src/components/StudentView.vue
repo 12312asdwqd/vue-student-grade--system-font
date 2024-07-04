@@ -2,7 +2,7 @@
   <div class="student-view">
     <h2>学生界面</h2>
     <div class="header">
-      <span>ID: {{ studentId }}</span>
+     <!--  <span>ID: {{ studentId }}</span> -->
       <div style="display: flex;">
         <div style="height:100%;width:40px;background-image:url(https://img.17sucai.com/attachment/3/2023-02-21/2023022159657.png?x-oss-process=style/ready);background-size: cover;"></div>
         <div id="user-message">
@@ -17,7 +17,7 @@
         <h3>科目列表</h3>
         <ul>
           <li v-for="subject in courses" :key="subject.courseId">
-            <button @click="fetchCourseGrade(subject.courseId)">{{ subject.corseName }}</button>
+            <button @click="fetchCourseGrade(subject.courseId)">{{ subject.courseName }}</button>
           </li>
         </ul>
       </div>
@@ -56,10 +56,11 @@ export default {
 
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8082/student/getStudentCourseList', {
+        const response = await axios.get('http://192.168.179.219:8088/student/getStudentCourseList', {
           params: { studentId: studentId.value }
         });
-        courses.value = response.data.courses;
+        console.log(response.data);
+        courses.value = response.data.data;
         console.log(courses.value); // 打印获取到的课程列表
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -68,13 +69,13 @@ export default {
 
     const fetchCourseGrade = async (courseId) => {
       try {
-        const response = await axios.get('http://127.0.0.1:8082/grade/getCourseGrade', {
+        const response = await axios.get('http://192.168.179.219:8088/grade/getCourseGrade', {
           params: {
             studentId: studentId.value,
             courseId: courseId
           }
         });
-        const grade = response.data.grade;
+        const grade = response.data.data;
         courseName.value = grade.courseName;
         teacherName.value = grade.teacherName;
         examScore.value = grade.examScore;
